@@ -5,7 +5,7 @@
 `hello_gio.go` is my hello world program for the
 Gio graphics package for Golang by Elias Naur.
 
-https://git.sr.ht/~eliasnaur/gio
+https://gioui.org
 
 Eschewing the elegant constraint layout system for
 more direct control, `hello_gio.go` demonstrates how to
