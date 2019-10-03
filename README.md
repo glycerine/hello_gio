@@ -1,4 +1,4 @@
-# hello word for Gio graphics
+# hello world for Gio graphics
 
 `hello_gio.go` is my hello world program for the
 Gio graphics package for Golang by Elias Naur.
