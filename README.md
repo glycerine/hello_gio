@@ -19,7 +19,7 @@ For background on Gio, see Elias's talk:
 
 https://www.youtube.com/watch?v=9D6eWP4peYM
 
-https://go-talks.appspot.com/github.com/eliasnaur/gophercon-2019-talk/gophercon-2019.slide
+https://go-talks.appspot.com/github.com/eliasnaur/gophercon-2019-talk/gophercon-2019.slide#1
 
 # credits
 
