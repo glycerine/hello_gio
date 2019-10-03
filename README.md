@@ -1,3 +1,5 @@
+![Screenshot](/screenshot.png)
+
 # hello world for Gio graphics
 
 `hello_gio.go` is my hello world program for the
