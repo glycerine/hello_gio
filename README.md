@@ -23,6 +23,15 @@ https://www.youtube.com/watch?v=9D6eWP4peYM
 
 https://go-talks.appspot.com/github.com/eliasnaur/gophercon-2019-talk/gophercon-2019.slide#1
 
+# installation notes
+
+A link to the installation notes for Gio on various platforms. I did not come across
+this until Elias mentioned it to me specifically. It talks about installing the DLLs
+and how to link on windows to avoid the extra console.
+(hint: `$ go build -ldflags="-H windowsgui" gioui.org/apps/hello`)
+
+https://man.sr.ht/~eliasnaur/gio/install.md
+
 # credits
 
 Author: Jason E. Aten, Ph.D.
