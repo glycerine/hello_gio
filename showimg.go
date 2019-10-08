@@ -75,9 +75,13 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	m.gtx.Reset(&e.Config, e.Size)
 	ops := m.gtx.Ops
 
-	// choose where to show the image
+	// choose how big to show the png
 	width := 1000
-	height := 600
+	// choose height to maintain aspect ratio
+	yx := float64(m.pngPlotRect.Max.Y) / float64(m.pngPlotRect.Max.X)
+	height := int(float64(width) * yx)
+
+	// choose where to place the png
 	x0 := 300
 	x1 := x0 + width
 	y0 := 200
@@ -87,16 +91,18 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 		Max: image.Point{X: x1, Y: y1},
 	}
 
-	// get full window coordinates to paint the background
+	// Get full window rectangle in order to paint the background.
 	fullWindowRect := image.Rectangle{Max: image.Point{X: e.Size.X, Y: e.Size.Y}}
 	fullWindowRect32 := toRectF(fullWindowRect)
 	if yellowBkg {
-		// lets us see easily where the image frame is.
+		// lets us see easily where the png limits are.
 		paint.ColorOp{Color: colors["cream"]}.Add(ops)
 		paint.PaintOp{Rect: fullWindowRect32}.Add(ops)
 	}
 
-	// show the image/texture.
+	// Show the png image.
+	// The ImageOp.Rect controls which area of the png to show.
+	// Here we show all of it, but we could just show a subset.
 	paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // display the png, part 1
 	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)               // display the png, part 2
 
