@@ -39,6 +39,10 @@ var _ = pointer.Event{}
 var _ = fmt.Printf
 
 func main() {
+	// temporary: take over main() to get texture/png display working. See showimg.go.
+	showImageMain()
+	return
+
 	go func() {
 		w := app.NewWindow()
 		if err := loop(w); err != nil {
