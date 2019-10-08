@@ -14,6 +14,10 @@ plot rectangular boxes at specific screen positions of your choosing.
 It then demonstrates how to place labels over those boxes, and to clip
 the text to stay inside the box.
 
+Finally, we add the display of a pre-rendered png image on the window,
+and color the background yellow. This last part is in `showimg.go`.
+Technically this is rendered first, but it was added subsequently.
+
 # intro to Gio
 
 For background on Gio, see Elias's talk:

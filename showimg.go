@@ -33,40 +33,44 @@ type myDrawState struct {
 	pngPlotRect image.Rectangle
 }
 
+func setupDrawState(w *app.Window) *myDrawState {
+	m := &myDrawState{
+		w: w,
+	}
+	m.gtx = &layout.Context{
+		Queue: w.Queue(),
+	}
+	var err error
+	m.pngPlot, _, err = LoadImage("points.png")
+	panicOn(err)
+	m.pngPlotRect = m.pngPlot.(*image.NRGBA).Rect
+	vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
+	return m
+}
+
 func showImageMain() {
 
 	go func() {
 		w := app.NewWindow()
 
 		var err error
-		m := &myDrawState{
-			w: w,
-		}
-		m.gtx = &layout.Context{
-			Queue: w.Queue(),
-		}
+		m := setupDrawState(w)
 
-		m.pngPlot, _, err = LoadImage("points.png")
-		panicOn(err)
-		m.pngPlotRect = m.pngPlot.(*image.NRGBA).Rect
-		vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
-
-		var mainErr error
-		yellowBkg := true // show image on background field of yellow
+		yellowBkg := false // show image on background field of yellow?
 
 	mainLoop:
 		for {
 			e := <-w.Events()
 			switch e := e.(type) {
 			case app.DestroyEvent:
-				mainErr = e.Err
+				err = e.Err
 				break mainLoop
 			case app.UpdateEvent:
 				//vv("e is '%#v'", e)
 				showImage(e, m, yellowBkg)
 			}
 		}
-		panicOn(mainErr)
+		panicOn(err)
 	}()
 	app.Main()
 }
@@ -90,6 +94,11 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 		Min: image.Point{X: x0, Y: y0},
 		Max: image.Point{X: x1, Y: y1},
 	}
+	borderPx := 5 // pixel width of border
+	borderRect := image.Rectangle{
+		Min: image.Point{X: x0 - borderPx, Y: y0 - borderPx},
+		Max: image.Point{X: x1 + borderPx, Y: y1 + borderPx},
+	}
 
 	// Get full window rectangle in order to paint the background.
 	fullWindowRect := image.Rectangle{Max: image.Point{X: e.Size.X, Y: e.Size.Y}}
@@ -98,6 +107,10 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 		// lets us see easily where the png limits are.
 		paint.ColorOp{Color: colors["cream"]}.Add(ops)
 		paint.PaintOp{Rect: fullWindowRect32}.Add(ops)
+	} else {
+		// just paint a border
+		paint.ColorOp{Color: colors["cream"]}.Add(ops)
+		paint.PaintOp{Rect: toRectF(borderRect)}.Add(ops)
 	}
 
 	// Show the png image.
@@ -110,7 +123,7 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // set the source for the png.
 	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)               // set the destination.
 
-	m.w.Update(ops)
+	//m.w.Update(ops)
 }
 
 func LoadImage(filename string) (image.Image, string, error) {

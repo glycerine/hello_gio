@@ -39,9 +39,8 @@ var _ = pointer.Event{}
 var _ = fmt.Printf
 
 func main() {
-	// temporary: take over main() to get texture/png display working. See showimg.go.
-	showImageMain()
-	return
+	//	showImageMain()
+	//	return
 
 	go func() {
 		w := app.NewWindow()
@@ -60,15 +59,10 @@ func loop(w *app.Window) error {
 	_ = regular
 	var faces shape.Faces
 	face := faces.For(regular, unit.Sp(20))
-	gtx := &layout.Context{
-		Queue: w.Queue(),
-	}
-
-	// load image once
-	//	m.pngPlot, _, err = LoadImage("points.png")
-	//	panicOn(err)
-	//	m.pngPlotRect = m.pngPlot.(*image.NRGBA).Rect
-	//	vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
+	_ = face
+	m := setupDrawState(w)
+	_ = m
+	yellowBkg := true
 
 	for {
 		e := <-w.Events()
@@ -76,18 +70,23 @@ func loop(w *app.Window) error {
 		case app.DestroyEvent:
 			return e.Err
 		case app.UpdateEvent:
-			gtx.Reset(&e.Config, e.Size)
-			faces.Reset(gtx.Config)
-			direct(gtx, w, e, face)
+			m.gtx.Reset(&e.Config, e.Size)
+			faces.Reset(m.gtx.Config)
+
+			// draw a pre-rendered png plot on the screen.
+			showImage(e, m, yellowBkg)
+
+			// draw some boxes with labels directly.
+			direct(m.gtx, w, e, face)
+
+			// Submit operations to the window.
+			w.Update(m.gtx.Ops)
 		}
 	}
 }
 
 func direct(gtx *layout.Context, w *app.Window, e app.UpdateEvent, face text.Face) {
-	ops := gtx.Ops
-	ops.Reset()
 	aqua := color.RGBA{A: 0xff, G: 0xcc, B: 200}
-	_ = aqua
 	const borderPix = 5
 
 	m := &box{
@@ -110,9 +109,6 @@ func direct(gtx *layout.Context, w *app.Window, e app.UpdateEvent, face text.Fac
 		// add _0123 to the end so we can see the clipping in action.
 		m.drawc(gtx, x, y, color.RGBA{A: 0xff, G: 0xcc, B: ci, R: 255 - ci}, fmt.Sprintf("%v_0123", i))
 	}
-
-	// Submit operations to the window.
-	w.Update(ops)
 }
 
 type box struct {
