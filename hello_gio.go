@@ -44,7 +44,7 @@ func main() {
 	//return
 
 	go func() {
-		w := app.NewWindow()
+		w := app.NewWindow(app.WithTitle("hello_gio!"))
 		if err := loop(w); err != nil {
 			log.Fatal(err)
 		}
