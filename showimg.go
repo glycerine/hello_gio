@@ -75,30 +75,30 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	m.gtx.Reset(&e.Config, e.Size)
 	ops := m.gtx.Ops
 
+	// choose where to show the image
 	width := 1000
 	height := 600
 	x0 := 300
 	x1 := x0 + width
 	y0 := 200
 	y1 := y0 + height
-
-	if yellowBkg {
-		// lets us see easily where the image frame is.
-		paint.ColorOp{Color: colors["cream"]}.Add(ops)
-		paint.PaintOp{Rect: f32.Rectangle{Max: f32.Point{X: float32(e.Size.X), Y: float32(e.Size.Y)}}}.Add(ops)
-	}
-
-	// show the image/texture.
-	// there might be a more efficient way? Ask around.
-	// How do we proportionately scale down the image to fit in a given box?
-
-	imgSrc := m.pngPlot
 	imgPos := image.Rectangle{
 		Min: image.Point{X: x0, Y: y0},
 		Max: image.Point{X: x1, Y: y1},
 	}
-	paint.ImageOp{Src: imgSrc, Rect: imgPos}.Add(ops) // display the png, part 1
-	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)     // display the png, part 2
+
+	// get full window coordinates to paint the background
+	fullWindowRect := image.Rectangle{Max: image.Point{X: e.Size.X, Y: e.Size.Y}}
+	fullWindowRect32 := toRectF(fullWindowRect)
+	if yellowBkg {
+		// lets us see easily where the image frame is.
+		paint.ColorOp{Color: colors["cream"]}.Add(ops)
+		paint.PaintOp{Rect: fullWindowRect32}.Add(ops)
+	}
+
+	// show the image/texture.
+	paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // display the png, part 1
+	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)               // display the png, part 2
 
 	m.w.Update(ops)
 }
