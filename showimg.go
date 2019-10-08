@@ -55,7 +55,6 @@ func showImageMain() {
 
 		var err error
 		m := setupDrawState(w)
-
 		yellowBkg := false // show image on background field of yellow?
 
 	mainLoop:
@@ -68,6 +67,7 @@ func showImageMain() {
 			case app.UpdateEvent:
 				//vv("e is '%#v'", e)
 				showImage(e, m, yellowBkg)
+				m.w.Update(m.gtx.Ops)
 			}
 		}
 		panicOn(err)
@@ -122,8 +122,6 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	// Scale the PaintOp.Rect to change the size of the rendered png.
 	paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // set the source for the png.
 	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)               // set the destination.
-
-	//m.w.Update(ops)
 }
 
 func LoadImage(filename string) (image.Image, string, error) {

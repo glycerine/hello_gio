@@ -39,8 +39,9 @@ var _ = pointer.Event{}
 var _ = fmt.Printf
 
 func main() {
-	//	showImageMain()
-	//	return
+	// to see just the showimg.go ping display alone:
+	//showImageMain()
+	//return
 
 	go func() {
 		w := app.NewWindow()
