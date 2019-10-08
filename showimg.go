@@ -1,51 +1,22 @@
 package main
 
-// A simple Gio program. See https://gioui.org for more information.
+// A simple Gio program. See https://gioui.org
 
 import (
 	"bufio"
 	"image"
 	"image/color"
-
-	"gioui.org/app"
-	"gioui.org/f32"
-	//"gioui.org/gesture"
-	"gioui.org/io/pointer"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/op/paint"
-	//"gioui.org/text"
-	//"gioui.org/text/shape"
-	//"gioui.org/unit"
-	"gioui.org/widget"
-	//"golang.org/x/exp/shiny/iconvg"
-	//"golang.org/x/image/draw"
-
-	"golang.org/x/exp/shiny/materialdesign/icons"
-	//"golang.org/x/image/font/gofont/goregular"
-	//"golang.org/x/image/font/gofont/gomonobold"
-	//"golang.org/x/image/font/gofont/gomono"
-	//"golang.org/x/image/font/sfnt"
-
-	//"fmt"
-	//"io"
-	"os"
-	//"path"
-	//"runtime"
-	//"sync"
-	//"time"
-
-	"4d63.com/tz"
-
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-)
+	"os"
 
-var _ = pointer.RectAreaOp{}
-var _ = widget.Image{}
-var _ = tz.LoadLocation
-var _ = icons.NavigationArrowBack
+	"gioui.org/app"
+	"gioui.org/f32"
+	"gioui.org/layout"
+	"gioui.org/op"
+	"gioui.org/op/paint"
+)
 
 var colors = make(map[string]color.RGBA)
 
@@ -79,7 +50,7 @@ func showImageMain() {
 		m.pngPlot, _, err = LoadImage("points.png")
 		panicOn(err)
 		m.pngPlotRect = m.pngPlot.(*image.NRGBA).Rect
-		//vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
+		vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
 
 		var mainErr error
 		yellowBkg := true // show image on background field of yellow
