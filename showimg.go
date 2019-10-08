@@ -101,13 +101,14 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	}
 
 	// Show the png image.
-	// Here we show all of it, but we could just show a subset.
+	// Here we show all of it, but we could just show a subset by
+	// changing Imageop.Rect.
 
 	// The ImageOp.Rect specifies the source rectangle.
 	// The PaintOp.Rect field specifies the destination rectangle.
 	// Scale the PaintOp.Rect to change the size of the rendered png.
-	paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // display the png, part 1
-	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)               // display the png, part 2
+	paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // set the source for the png.
+	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)               // set the destination.
 
 	m.w.Update(ops)
 }
