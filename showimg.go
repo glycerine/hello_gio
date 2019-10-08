@@ -14,7 +14,6 @@ import (
 	"gioui.org/app"
 	"gioui.org/f32"
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/paint"
 )
 
@@ -73,11 +72,8 @@ func showImageMain() {
 }
 
 func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
-	gtx := m.gtx
-	ops := &op.Ops{}
-	m.gtx.Ops = ops
-	w := m.w
-	gtx.Reset(&e.Config, e.Size)
+	m.gtx.Reset(&e.Config, e.Size)
+	ops := m.gtx.Ops
 
 	width := 1000
 	height := 600
@@ -85,10 +81,7 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	x1 := x0 + width
 	y0 := 200
 	y1 := y0 + height
-	_ = x1
-	_ = y1
 
-	ops.Reset()
 	if yellowBkg {
 		// lets us see easily where the image frame is.
 		paint.ColorOp{Color: colors["cream"]}.Add(ops)
@@ -107,7 +100,7 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	paint.ImageOp{Src: imgSrc, Rect: imgPos}.Add(ops) // display the png, part 1
 	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)     // display the png, part 2
 
-	w.Update(ops)
+	m.w.Update(ops)
 }
 
 func LoadImage(filename string) (image.Image, string, error) {
