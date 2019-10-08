@@ -61,7 +61,7 @@ type myDrawState struct {
 	pngPlotRect image.Rectangle
 }
 
-func main() {
+func showImageMain() {
 	go func() {
 		w := app.NewWindow()
 
