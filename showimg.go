@@ -30,7 +30,7 @@ type myDrawState struct {
 	w   *app.Window
 	gtx *layout.Context
 
-	//pngPlot     image.Image
+	pngPlot     image.Image
 	pngPlotOp   paint.ImageOp
 	pngPlotRect image.Rectangle
 }
@@ -41,10 +41,10 @@ func setupDrawState(w *app.Window) *myDrawState {
 	}
 	m.gtx = layout.NewContext(w.Queue())
 	var err error
-	pngPlot, _, err := LoadImage("points.png")
+	m.pngPlot, _, err = LoadImage("points.png")
 	panicOn(err)
-	m.pngPlotRect = pngPlot.(*image.NRGBA).Rect
-	m.pngPlotOp = paint.NewImageOp(pngPlot)
+	m.pngPlotRect = m.pngPlot.(*image.NRGBA).Rect
+	m.pngPlotOp = paint.NewImageOp(m.pngPlot)
 	vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
 	return m
 }
@@ -125,9 +125,9 @@ func showImage(e system.FrameEvent, m *myDrawState, yellowBkg bool) {
 	// Scale the PaintOp.Rect to change the size of the rendered png.
 	// old:
 	//paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // set the source for the png.
-	//paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops) // set the destination.
 	// update from Elias:
 	m.pngPlotOp.Add(ops)
+	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops) // set the destination.
 }
 
 func LoadImage(filename string) (image.Image, string, error) {
