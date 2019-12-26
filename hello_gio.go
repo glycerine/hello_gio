@@ -21,15 +21,15 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
+	"gioui.org/font/gofont"
 	"gioui.org/io/pointer"
+	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/op/clip"
 	"gioui.org/op/paint"
-	"gioui.org/text"
-	"gioui.org/text/shape"
 	"gioui.org/unit"
-	"golang.org/x/image/font/gofont/goregular"
-	"golang.org/x/image/font/sfnt"
+	"gioui.org/widget/material"
 )
 
 var _ = paint.ImageOp{}
@@ -44,7 +44,7 @@ func main() {
 	//return
 
 	go func() {
-		w := app.NewWindow(app.WithTitle("hello_gio!"))
+		w := app.NewWindow(app.Title("hello_gio!"))
 		if err := loop(w); err != nil {
 			log.Fatal(err)
 		}
@@ -53,14 +53,10 @@ func main() {
 }
 
 func loop(w *app.Window) error {
-	regular, err := sfnt.Parse(goregular.TTF)
-	if err != nil {
-		panic("failed to load font")
-	}
-	_ = regular
-	var faces shape.Faces
-	face := faces.For(regular, unit.Sp(20))
-	_ = face
+
+	gofont.Register()
+	theme := material.NewTheme()
+
 	m := setupDrawState(w)
 	_ = m
 	yellowBkg := true
@@ -68,25 +64,26 @@ func loop(w *app.Window) error {
 	for {
 		e := <-w.Events()
 		switch e := e.(type) {
-		case app.DestroyEvent:
+		case system.DestroyEvent:
 			return e.Err
-		case app.UpdateEvent:
-			m.gtx.Reset(&e.Config, e.Size)
-			faces.Reset(m.gtx.Config)
+		case system.FrameEvent:
+			m.gtx.Reset(e.Config, e.Size)
 
 			// draw a pre-rendered png plot on the screen.
 			showImage(e, m, yellowBkg)
 
 			// draw some boxes with labels directly.
-			direct(m.gtx, w, e, face)
+			direct(m.gtx, theme, w, e)
 
 			// Submit operations to the window.
-			w.Update(m.gtx.Ops)
+			e.Frame(m.gtx.Ops)
 		}
 	}
 }
 
-func direct(gtx *layout.Context, w *app.Window, e app.UpdateEvent, face text.Face) {
+func direct(gtx *layout.Context, theme *material.Theme, w *app.Window, e system.FrameEvent) {
+
+	//func direct(gtx *layout.Context, w *app.Window, e app.UpdateEvent, face text.Face) {
 	aqua := color.RGBA{A: 0xff, G: 0xcc, B: 200}
 	const borderPix = 5
 
@@ -95,7 +92,6 @@ func direct(gtx *layout.Context, w *app.Window, e app.UpdateEvent, face text.Fac
 		w:         50,
 		color:     aqua,
 		borderPix: borderPix,
-		face:      face,
 	}
 
 	// draws 5 squares
@@ -108,7 +104,7 @@ func direct(gtx *layout.Context, w *app.Window, e app.UpdateEvent, face text.Fac
 		ci := 50 * byte(i) // color increment
 
 		// add _0123 to the end so we can see the clipping in action.
-		m.drawc(gtx, x, y, color.RGBA{A: 0xff, G: 0xcc, B: ci, R: 255 - ci}, fmt.Sprintf("%v_0123", i))
+		m.drawc(gtx, theme, x, y, color.RGBA{A: 0xff, G: 0xcc, B: ci, R: 255 - ci}, fmt.Sprintf("%v_0123", i))
 	}
 }
 
@@ -117,11 +113,10 @@ type box struct {
 	w         int        //width
 	color     color.RGBA // default
 	borderPix int        // number of pixels to inset the label from the box edge.
-	face      text.Face  // for label
 }
 
 // draw a rectangle at x0,y0 with given color; adding it to the gtx.Ops chain.
-func (e *box) drawc(gtx *layout.Context, x0, y0 int, color color.RGBA, label string) {
+func (e *box) drawc(gtx *layout.Context, theme *material.Theme, x0, y0 int, color color.RGBA, label string) {
 	ops := gtx.Ops
 	paint.ColorOp{Color: color}.Add(ops)
 	re := f32.Rectangle{
@@ -144,7 +139,8 @@ func (e *box) drawc(gtx *layout.Context, x0, y0 int, color color.RGBA, label str
 	// extend beyond or overflow outside the box.
 	e.inPlaceClip(e.borderPix).Add(ops)
 
-	text.Label{Face: e.face, Text: label}.Layout(gtx)
+	theme.Label(unit.Sp(20), label).Layout(gtx)
+
 	stack.Pop() // ops)
 
 	// Elias comments:
@@ -165,9 +161,11 @@ func (e *box) drawc(gtx *layout.Context, x0, y0 int, color color.RGBA, label str
 // Thus it is an "in-place" clip, relative to the current
 // stack's position, rather than at an arbitrary screen position.
 //
-func (e *box) inPlaceClip(border int) paint.ClipOp {
-	return paint.RectClip(image.Rectangle{
-		Min: image.Point{X: 0, Y: 0},
-		Max: image.Point{X: e.w - border, Y: e.h - border},
-	})
+func (e *box) inPlaceClip(border int) clip.Op {
+	return clip.Rect{
+		Rect: f32.Rectangle{
+			Min: f32.Point{X: 0, Y: 0},
+			Max: f32.Point{X: float32(e.w - border), Y: float32(e.h - border)},
+		},
+	}.Op(nil)
 }

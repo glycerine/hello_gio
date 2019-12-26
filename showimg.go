@@ -13,6 +13,7 @@ import (
 
 	"gioui.org/app"
 	"gioui.org/f32"
+	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op/paint"
 )
@@ -29,7 +30,8 @@ type myDrawState struct {
 	w   *app.Window
 	gtx *layout.Context
 
-	pngPlot     image.Image
+	//pngPlot     image.Image
+	pngPlotOp   paint.ImageOp
 	pngPlotRect image.Rectangle
 }
 
@@ -37,13 +39,12 @@ func setupDrawState(w *app.Window) *myDrawState {
 	m := &myDrawState{
 		w: w,
 	}
-	m.gtx = &layout.Context{
-		Queue: w.Queue(),
-	}
+	m.gtx = layout.NewContext(w.Queue())
 	var err error
-	m.pngPlot, _, err = LoadImage("points.png")
+	pngPlot, _, err := LoadImage("points.png")
 	panicOn(err)
-	m.pngPlotRect = m.pngPlot.(*image.NRGBA).Rect
+	m.pngPlotRect = pngPlot.(*image.NRGBA).Rect
+	m.pngPlotOp = paint.NewImageOp(pngPlot)
 	vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
 	return m
 }
@@ -61,13 +62,13 @@ func showImageMain() {
 		for {
 			e := <-w.Events()
 			switch e := e.(type) {
-			case app.DestroyEvent:
+			case system.DestroyEvent:
 				err = e.Err
 				break mainLoop
-			case app.UpdateEvent:
+			case system.FrameEvent:
 				//vv("e is '%#v'", e)
 				showImage(e, m, yellowBkg)
-				m.w.Update(m.gtx.Ops)
+				e.Frame(m.gtx.Ops)
 			}
 		}
 		panicOn(err)
@@ -75,8 +76,9 @@ func showImageMain() {
 	app.Main()
 }
 
-func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
-	m.gtx.Reset(&e.Config, e.Size)
+func showImage(e system.FrameEvent, m *myDrawState, yellowBkg bool) {
+	m.gtx.Reset(e.Config, e.Size)
+	//	m.gtx.Reset(&e.Config, e.Size)
 	ops := m.gtx.Ops
 
 	// choose how big to show the png
@@ -94,6 +96,7 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 		Min: image.Point{X: x0, Y: y0},
 		Max: image.Point{X: x1, Y: y1},
 	}
+	_ = imgPos
 	borderPx := 5 // pixel width of border
 	borderRect := image.Rectangle{
 		Min: image.Point{X: x0 - borderPx, Y: y0 - borderPx},
@@ -120,8 +123,11 @@ func showImage(e app.UpdateEvent, m *myDrawState, yellowBkg bool) {
 	// The ImageOp.Rect specifies the source rectangle.
 	// The PaintOp.Rect field specifies the destination rectangle.
 	// Scale the PaintOp.Rect to change the size of the rendered png.
-	paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // set the source for the png.
-	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops)               // set the destination.
+	// old:
+	//paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // set the source for the png.
+	//paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops) // set the destination.
+	// update from Elias:
+	m.pngPlotOp.Add(ops)
 }
 
 func LoadImage(filename string) (image.Image, string, error) {
