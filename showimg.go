@@ -31,7 +31,7 @@ type myDrawState struct {
 	gtx *layout.Context
 
 	pngPlot     image.Image
-	pngPlotOp   paint.ImageOp
+	pngImageOp  paint.ImageOp
 	pngPlotRect image.Rectangle
 }
 
@@ -44,7 +44,7 @@ func setupDrawState(w *app.Window) *myDrawState {
 	m.pngPlot, _, err = LoadImage("points.png")
 	panicOn(err)
 	m.pngPlotRect = m.pngPlot.(*image.NRGBA).Rect
-	m.pngPlotOp = paint.NewImageOp(m.pngPlot)
+	m.pngImageOp = paint.NewImageOp(m.pngPlot)
 	vv("m.pngPlot.Rect = '%#v'", m.pngPlotRect)
 	return m
 }
@@ -96,7 +96,6 @@ func showImage(e system.FrameEvent, m *myDrawState, yellowBkg bool) {
 		Min: image.Point{X: x0, Y: y0},
 		Max: image.Point{X: x1, Y: y1},
 	}
-	_ = imgPos
 	borderPx := 5 // pixel width of border
 	borderRect := image.Rectangle{
 		Min: image.Point{X: x0 - borderPx, Y: y0 - borderPx},
@@ -123,11 +122,8 @@ func showImage(e system.FrameEvent, m *myDrawState, yellowBkg bool) {
 	// The ImageOp.Rect specifies the source rectangle.
 	// The PaintOp.Rect field specifies the destination rectangle.
 	// Scale the PaintOp.Rect to change the size of the rendered png.
-	// old:
-	//paint.ImageOp{Src: m.pngPlot, Rect: m.pngPlotRect}.Add(ops) // set the source for the png.
-	// update from Elias:
-	m.pngPlotOp.Add(ops)
-	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops) // set the destination.
+	m.pngImageOp.Add(ops)                         // set the source rectangle for the png.
+	paint.PaintOp{Rect: toRectF(imgPos)}.Add(ops) // set the destination rectangle.
 }
 
 func LoadImage(filename string) (image.Image, string, error) {
