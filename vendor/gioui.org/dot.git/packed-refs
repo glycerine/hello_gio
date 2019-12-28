@@ -1,0 +1,7 @@
+# pack-refs with: peeled fully-peeled sorted 
+aff5254a34a7259cb185efbd971212a762a8611a refs/remotes/origin/constraint-resolve
+82d893c7c05d791478ebdda8e8b9270108f5930b refs/remotes/origin/debug-35
+c7993ae05d6432c7587549c174ec5e5cf1f6bc31 refs/remotes/origin/debug-issue-22
+778cf4334c335bc107ccbdc26d39d874e02434e3 refs/remotes/origin/debug-issue-22-2
+6bc5ff247938a7c1a8ce199f5b4a7841282242a5 refs/remotes/origin/master
+c41c62d94028df7c0ed67569d298f275752b7436 refs/remotes/origin/wiki

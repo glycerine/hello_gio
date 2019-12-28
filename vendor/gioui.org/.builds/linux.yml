@@ -1,0 +1,48 @@
+image: debian/testing
+repositories:
+ experimental: http://deb.debian.org/debian experimental main
+packages:
+ - curl
+ - libwayland-dev
+ - libx11-dev
+ - libxkbcommon-dev
+ - libxkbcommon-x11-dev
+ - libgles2-mesa-dev
+ - libegl1-mesa-dev
+ - wine
+ - golang
+ - xvfb
+ - xdotool
+ - scrot
+ - sway
+ - grim
+sources:
+ - https://git.sr.ht/~eliasnaur/gio
+environment:
+ GOFLAGS: -mod=readonly
+ PATH: /home/build/bin:/usr/bin
+tasks:
+ - install_gotip: |
+     go get golang.org/dl/gotip
+     /home/build/go/bin/gotip download
+     mkdir /home/build/bin
+     ln -s /home/build/go/bin/gotip /home/build/bin/go
+ - install_chrome: |
+     curl -s https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+     sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+     sudo apt update
+     sudo apt install -y google-chrome-stable
+ - test_gio: |
+     cd gio
+     go test -race ./...
+     GOOS=windows go test -exec=wine ./...
+ - test_example: |
+     cd gio/example
+     go test -race ./...
+ - test_cmd: |
+     cd gio/cmd
+     go test ./...
+     go test -race ./...
+ - check_gofmt: |
+     cd gio
+     test -z "$(gofmt -s -l .)"
