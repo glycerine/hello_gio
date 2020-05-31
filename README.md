@@ -35,7 +35,7 @@ this until Elias mentioned it to me specifically. It talks about installing the 
 and how to link on windows to avoid the extra console.
 (hint: `$ go build -ldflags="-H windowsgui" gioui.org/apps/hello`)
 
-https://man.sr.ht/~eliasnaur/gio/install.md
+https://gioui.org/doc/install
 
 # credits
 
